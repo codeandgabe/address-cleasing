@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-// use App\Jobs\CleansingGeocoderJob;
 use App\Jobs\GeocoderBatchJob;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -30,22 +29,13 @@ class CleansingController extends Controller {
 		$geocode = new \App\Jobs\GeocoderBatchJob();
 
 		$threshold = 49999;
-
-
-
-		// $threshold = threshold;
-		for ($i = 1; $i <= 15; $i++) {
+		for ($i = 1; $i <= 2; $i++) {
 			$limit = $threshold * ($i - 1);
 			$offset = $limit + $threshold;
 			$limit_offset = ($limit + 1) . ",$offset";
-			// echo "SELECT * FROM `enderecos` WHERE `C_HERE_ID` IS NULL LIMIT {$limit_offset}";
-			// echo $limit_offset;
-			// echo "<br>";
 			$geocode->handle($limit_offset);
 			usleep(1);
 		}
-
-
 
 		exit();
 	}
@@ -55,13 +45,7 @@ class CleansingController extends Controller {
 		// return $this->geoBatch();
 		// $job = new \App\Jobs\CleansingJob();
 		// $job->handle();
-
-		// exit();
-
-		// exit("1");
-
 		// $this->testJob();
-		// exit();
 
 		return view('cleansing.upload');
 	}
@@ -78,11 +62,6 @@ class CleansingController extends Controller {
 
 		$planilha = $request->file('planilha');
 		if ($planilha->isValid()) {
-
-			// $reader = ReaderFactory::create(Type::CSV); // for XLSX files
-			// $reader->open($planilha->getRealPath());
-
-			// dd($reader->open($planilha->getRealPath()));
 
 			$result = $this->readCSV($planilha->getRealPath(), [
 				'delimiter' => ',',
@@ -104,8 +83,6 @@ class CleansingController extends Controller {
 	}
 
 	public function processData($result = array()) {
-		// $limit = 100;
-		// echo "<pre>";
 		set_time_limit(0);
 		$enderecos = array();
 		// $results = DB::table("enderecos")->truncate();
@@ -162,25 +139,10 @@ class CleansingController extends Controller {
 
 		}
 
-		// $enderecos = collect($enderecos);
-
-		// $enderecos->chunk(10000, function ($subset) {
-		// DB::table('enderecos')->insert($subset->toArray());
-		// });
-
 		foreach (array_chunk($enderecos, 1500) as $t) {
-
-			// dd($t);
 			DB::table('enderecos')->insert($t);
 			usleep(10);
-			// $date = Carbon::now()->addSeconds(10);
-			// Queue::later($date, new CleansingJob());
-
 		}
-
-		// DB::table('enderecos')->insert(
-		// $enderecos
-		// );
 
 	}
 
@@ -197,7 +159,6 @@ class CleansingController extends Controller {
 		$cleanAddress = "$tipo_logradouro $logradouro, $bairro, $cidade, $uf, $cep";
 
 		return $cleanAddress;
-		// return "blablabla";
 	}
 
 	public function getApiInfo() {
@@ -244,7 +205,7 @@ class CleansingController extends Controller {
 	}
 
 	/*
-	@route upload/batchjob
+		@route upload/batchjob
 	*/
 	public function batchjob(Request $request) {
 		$txt = $request->file('txt');
@@ -259,8 +220,6 @@ class CleansingController extends Controller {
 						// continue;
 					} else {
 						$record = explode('|', $line);
-
-
 
 						$fields = [
 							// 'recId' => $record[0],
@@ -277,7 +236,6 @@ class CleansingController extends Controller {
 							'h_district' => $record[11],
 							'h_city' => $record[12],
 							'h_postalCode' => $record[13],
-							// 'h_county' => $record[14],
 							'h_state' => $record[15],
 						];
 
@@ -285,34 +243,18 @@ class CleansingController extends Controller {
 							$fields['here_status'] = 'inativo';
 						}
 
-						// var_dump($fields);
-						// echo "$record[0]";
-
 						DB::table('enderecos')
-						    ->where('id', $record[0])
-						    ->update($fields);
+							->where('id', $record[0])
+							->update($fields);
 
-						// echo "<pre>";
-						// print_r($fields);
-						// echo "<br>";
 					}
 					$i++;
 				}
-				// dd($line);
 
 				fclose($contents);
 			} else {
 				// error opening the file.
 			}
-
-			// dd($contents);
-			// $reader->open($planilha->getRealPath());
-
-			// $result = $this->readCSV($planilha->getRealPath(), [
-			// 'delimiter' => ',',
-			// ]);
-
-			// return $this->processData($result);
 
 		}
 	}

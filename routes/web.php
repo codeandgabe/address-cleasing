@@ -11,9 +11,9 @@
 |
  */
 
+$router->get('/', 'CleansingController@index');
 $router->get('upload/', 'CleansingController@index');
 $router->post('upload/', 'CleansingController@upload');
 $router->get('upload/records', 'CleansingController@records');
-
 $router->get('upload/batchjobs', 'CleansingController@batch');
 $router->post('upload/batchjob', 'CleansingController@batchjob');

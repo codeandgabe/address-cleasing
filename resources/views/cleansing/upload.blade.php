@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title', 'Upload de Planilha')
-{{-- 
+{{--
 <form action="upload" method="POST" class="form" enctype="multipart/form-data">
 	<input type="file" name="planilha" class="form-control">
 	<input type="submit" value="enviar"  class="btn btn-danger">
